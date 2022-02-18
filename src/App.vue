@@ -1,10 +1,34 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+  <div>
+    <div v-if="!isReady">Loading...</div>
+    <div v-else>
+      <nav-bar />
+      <router-view />
+    </div>
   </div>
-  <router-view/>
 </template>
+
+<script>
+import { mapGetters } from "vuex";
+import NavBar from './components/layouts/NavBar.vue';
+import StorageService from "./services/storage.service";
+
+export default {
+  components: { NavBar },
+  computed: {
+    isReady() {
+      return !StorageService.getToken() ? true : this.isLoaded === true;
+    },
+    ...mapGetters("auth", ["isAuthenticated", "isLoaded"]),
+  },
+
+  mounted() {
+    if (StorageService.getToken()) {
+      this.$store.dispatch("auth/loadMe");
+    }
+  },
+};
+</script>
 
 <style>
 #app {
@@ -25,6 +49,12 @@
 }
 
 #nav a.router-link-exact-active {
+  color: #42b983;
+}
+
+.logout {
+  background: transparent;
+  border: none;
   color: #42b983;
 }
 </style>
