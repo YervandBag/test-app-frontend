@@ -31,6 +31,19 @@ export default {
         }
     },
 
+    async githubLogin({ commit, dispatch }, payload) {
+        try {
+            commit('loginRequest')
+            const { data } = await http.post('api/auth/githubLogin', payload)
+            StorageService.setToken(data.access_token)
+            commit('loginSuccess', data.user)
+            router.push({ name: 'Users' })
+        } catch (error) {
+            commit('loginFailure', error.response?.data?.error || 'Something went wrong')
+            dispatch('clearError')
+        }
+    },
+
     logout({ commit }) {
         commit('reset')
         StorageService.removeToken()
